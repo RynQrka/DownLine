@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DownLine Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --muted: #94a3b8;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        h1, h2 { color: var(--accent); font-weight: 600; margin-top: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+        th { color: var(--muted); font-weight: 500; text-transform: uppercase; font-size: 0.75rem; }
+        .status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-inactive { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .muted { color: var(--muted); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <header style="margin-bottom: 3rem;">
+        <h1>DownLine — Operational Visibility</h1>
+        <p class="muted">Archival appliance status and queue observability.</p>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Queue Summary</h2>
+            <table>
+                {% for status, count in queue.items() %}
+                <tr>
+                    <td>{{ status|capitalize }}</td>
+                    <td style="text-align: right; font-weight: bold;">{{ count }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Storage Breakdown</h2>
+            <table>
+                <thead>
+                    <tr><th>Type</th><th>Count</th><th>Size (MB)</th></tr>
+                </thead>
+                {% for row in storage %}
+                <tr>
+                    <td>{{ row['file_type']|capitalize }}s</td>
+                    <td>{{ row['count'] }}</td>
+                    <td>{{ (row['total_size'] / 1024 / 1024)|round(2) if row['total_size'] else 0 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Monitored Channels</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Channel</th>
+                    <th>Status</th>
+                    <th>Tier</th>
+                    <th>Last Poll</th>
+                    <th>Next Poll</th>
+                </tr>
+            </thead>
+            {% for c in channels %}
+            <tr>
+                <td><strong>{{ c['display_name'] }}</strong><br><span class="muted">{{ c['username_or_link'] }}</span></td>
+                <td>
+                    <span class="status-badge {{ 'status-active' if c['is_active'] else 'status-inactive' }}">
+                        {{ 'ACTIVE' if c['is_active'] else 'PAUSED' }}
+                    </span>
+                    <span class="status-badge" style="background: rgba(56, 189, 248, 0.1); color: var(--accent);">
+                        {{ 'PERIODIC' if c['is_periodic'] else 'ONE-TIME' }}
+                    </span>
+                </td>
+                <td>Tier {{ c['tier'] if c['is_periodic'] else '-' }}</td>
+                <td><span class="muted">{{ c['last_polled_at'] or 'Never' }}</span></td>
+                <td>{{ c['cooldown_until'] or 'Pending' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    {% if failures %}
+    <div class="card" style="margin-top: 2rem; border-top: 2px solid var(--danger);">
+        <h2>Recent Failures</h2>
+        <table>
+            <thead>
+                <tr><th>Channel</th><th>Error</th><th>Retries</th><th>Last Attempt</th></tr>
+            </thead>
+            {% for f in failures %}
+            <tr>
+                <td>{{ f['display_name'] }}</td>
+                <td style="color: var(--danger); font-size: 0.8rem;">{{ f['last_error'] }}</td>
+                <td>{{ f['retry_count'] }}/3</td>
+                <td class="muted">{{ f['last_attempt_at'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    <footer style="margin-top: 4rem; text-align: center; border-top: 1px solid #334155; padding-top: 1rem;">
+        <p class="muted">All timestamps are in UTC.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Python Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.pytest_cache/
+
+# Credentials & Sessions (CRITICAL: DO NOT COMMIT SESSIONS)
+.env
+*.session
+*.session-journal
+app/sessions/*.session
+app/sessions/*.session-journal
+
+# Operational Data (Keep repo clean)
+app/logs/*.log
+app/logs/*.json
+app/downloads/tmp/
+app/archive/
+
+# Singleton Lock
+*.lock
+app/sessions/*.lock
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Explicitly tracking database folder (As per user request)
+# !app/database/

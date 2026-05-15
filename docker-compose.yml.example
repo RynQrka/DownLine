@@ -1,0 +1,34 @@
+services:
+  appliance:
+    # Use the pre-built image or build locally
+    image: adityagarasangi0/downline:latest
+    container_name: downline_appliance
+    restart: always
+    env_file:
+      - .env
+    
+    # Port for the Dashboard UI
+    ports:
+      - "8000:8000"
+    
+    volumes:
+      # Format: host_path : container_path
+      # container_path must match the relative paths in your .env
+      - ./app/archive:/app/app/archive
+      - ./app/database:/app/app/database
+      - ./app/logs:/app/app/logs
+      - ./app/sessions:/app/app/sessions
+      - ./app/downloads/tmp:/app/app/downloads/tmp
+    
+    environment:
+      - LOG_FORMAT=json # Production logging style
+      
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: downline_network

@@ -1,0 +1,29 @@
+# Version Control
+.git/
+.gitignore
+
+# Environment & Credentials
+.env
+.env.example
+docker-compose.yml.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/*
+.pytest_cache/*
+
+# Data & Logs (Handled via volumes)
+app/archive/*
+app/database/*
+app/logs/*
+app/sessions/*
+app/downloads/tmp/*
+
+# Infrastructure
+Dockerfile
+docker-compose.yml
+README.md
+uv.lock
+pyproject.toml
+.dockerignore

@@ -1,0 +1,24 @@
+services:
+  appliance:
+    image: adityagarasangi0/downline:02
+    container_name: downline_appliance
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./app/archive:/app/app/archive
+      - ./app/database:/app/app/database
+      - ./app/logs:/app/app/logs
+      - ./app/sessions:/app/app/sessions
+      - ./app/downloads/tmp:/app/app/downloads/tmp
+    environment:
+      - LOG_FORMAT=json # Use JSON logging in production/docker
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: downline_network
