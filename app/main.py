@@ -12,7 +12,6 @@ from app.core.db import db
 from app.bot.bot import control_bot
 from app.core.downloader import download_manager
 from app.core.scheduler import tier_scheduler
-from app.dashboard.app import dashboard
 from app.core.monitor import resource_monitor
 
 async def shutdown(sig=None):
@@ -24,9 +23,6 @@ async def shutdown(sig=None):
     
     # 1. Stop Resource Monitor
     await resource_monitor.stop()
-
-    # 2. Stop Dashboard
-    await dashboard.stop()
 
     # 2. Stop Tier Scheduler
     await tier_scheduler.stop()
@@ -122,10 +118,7 @@ async def main():
         # 8. Start Tier Scheduler
         await tier_scheduler.start()
         
-        # 9. Start Dashboard
-        asyncio.create_task(dashboard.start())
-        
-        # 10. Start Resource Monitor
+        # 9. Start Resource Monitor
         await resource_monitor.start()
 
         logger.info("downline_appliance_online")

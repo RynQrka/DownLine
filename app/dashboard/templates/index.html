@@ -3,125 +3,636 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DownLine Dashboard</title>
+    <title>DownLine — Operational Pulse</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='hsl(199, 89%, 48%29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='7 10 12 15 17 10'/%3E%3Cline x1='12' y1='15' x2='12' y2='3'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --text-color: #f1f5f9;
-            --card-bg: #1e293b;
-            --accent: #38bdf8;
-            --danger: #ef4444;
-            --success: #10b981;
-            --muted: #94a3b8;
+            --bg: hsl(222, 47%, 7%);
+            --card-bg: hsla(222, 47%, 12%, 0.7);
+            --card-border: hsla(217, 33%, 25%, 0.5);
+            --accent: hsl(199, 89%, 48%);
+            --accent-glow: hsla(199, 89%, 48%, 0.2);
+            --text-main: hsl(210, 40%, 98%);
+            --text-muted: hsl(215, 20%, 65%);
+            --success: hsl(142, 71%, 45%);
+            --warning: hsl(38, 92%, 50%);
+            --danger: hsl(0, 84%, 60%);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 2rem;
-            line-height: 1.5;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(199, 89%, 48%, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(142, 71%, 45%, 0.03) 0px, transparent 50%);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-bottom: 5rem;
         }
-        h1, h2 { color: var(--accent); font-weight: 600; margin-top: 0; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #334155; font-size: 0.9rem; }
-        th { color: var(--muted); font-weight: 500; text-transform: uppercase; font-size: 0.75rem; }
-        .status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
-        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-inactive { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .muted { color: var(--muted); font-size: 0.85rem; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Top Bar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.25rem;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-group h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: hsla(222, 47%, 15%, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 3rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .span-full { grid-column: span 12; }
+        .span-8 { grid-column: span 8; }
+        .span-6 { grid-column: span 6; }
+        .span-4 { grid-column: span 4; }
+        .span-3 { grid-column: span 3; }
+
+        @media (max-width: 1100px) {
+            .span-8, .span-6, .span-4, .span-3 { grid-column: span 12; }
+        }
+
+        /* High-End Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at top left, hsla(199, 89%, 48%, 0.05), transparent 70%);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            border-color: hsla(199, 89%, 48%, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* System Pulse Metrics */
+        .pulse-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .metric-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Progress Visuals */
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: hsla(217, 33%, 20%, 0.5);
+            border-radius: 4px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #60a5fa);
+            border-radius: 4px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Storage Distribution Multi-Bar */
+        .storage-distribution {
+            display: flex;
+            height: 12px;
+            width: 100%;
+            background: hsla(217, 33%, 20%, 0.5);
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .storage-segment {
+            height: 100%;
+            transition: width 1s ease;
+        }
+
+        .seg-image { background: var(--accent); }
+        .seg-video { background: var(--warning); }
+        .seg-gif { background: var(--success); }
+        .seg-other { background: var(--text-muted); }
+
+        /* Tables & Lists */
+        .data-table-wrapper {
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--card-border);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1.25rem 0;
+            font-size: 0.95rem;
+            border-bottom: 1px solid hsla(217, 33%, 25%, 0.3);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .channel-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .channel-name { font-weight: 600; color: #fff; }
+        .channel-meta { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Badges */
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-active { background: hsla(142, 71%, 45%, 0.1); color: var(--success); border: 1px solid hsla(142, 71%, 45%, 0.2); }
+        .badge-paused { background: hsla(0, 84%, 60%, 0.1); color: var(--danger); border: 1px solid hsla(0, 84%, 60%, 0.2); }
+        .badge-info { background: hsla(199, 89%, 48%, 0.1); color: var(--accent); border: 1px solid hsla(199, 89%, 48%, 0.2); }
+        .badge-warning { background: hsla(38, 92%, 50%, 0.1); color: var(--warning); border: 1px solid hsla(38, 92%, 50%, 0.2); }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: hsla(222, 47%, 15%, 0.3);
+            border-radius: 1rem;
+            border: 1px dashed var(--card-border);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 6rem;
+            text-align: center;
+            padding: 3rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        #sync-timestamp { font-weight: 600; color: var(--accent); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: hsla(217, 33%, 35%, 1); }
+
+        .queue-count-value[data-status="pending"] { color: var(--accent); }
+        .queue-count-value:not([data-status="pending"]) { color: var(--text-main); }
+
+        .storage-card[data-type="image"] { border-left-color: var(--accent) !important; }
+        .storage-card[data-type="video"] { border-left-color: var(--warning) !important; }
+        .storage-card[data-type="gif"] { border-left-color: var(--success) !important; }
+        .storage-card[data-type="other"] { border-left-color: var(--text-muted) !important; }
     </style>
 </head>
 <body>
-    <header style="margin-bottom: 3rem;">
-        <h1>DownLine — Operational Visibility</h1>
-        <p class="muted">Archival appliance status and queue observability.</p>
-    </header>
+    <div class="container">
+        <header>
+            <div class="logo-group">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <h1>DownLine</h1>
+            </div>
+            <div id="connection-status" class="status-pill">
+                <div class="pulse-dot"></div>
+                <span id="status-text">Operational</span>
+            </div>
+        </header>
 
-    <div class="grid">
-        <div class="card">
-            <h2>Queue Summary</h2>
-            <table>
-                {% for status, count in queue.items() %}
-                <tr>
-                    <td>{{ status|capitalize }}</td>
-                    <td style="text-align: right; font-weight: bold;">{{ count }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div class="dashboard-grid">
+            <!-- System Pulse Card -->
+            <div class="card span-full">
+                <div class="card-title">System Pulse</div>
+                <div class="pulse-metrics">
+                    <div class="metric-box">
+                        <span class="metric-label">CPU LOAD</span>
+                        <span id="sys-cpu" class="metric-value">{{ system.cpu }}%</span>
+                        <div class="progress-track"><div id="bar-cpu" class="progress-fill" style="width: 0%" data-init-width="{{ system.cpu }}"></div></div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">MEMORY USAGE</span>
+                        <span id="sys-ram" class="metric-value">{{ system.ram }}%</span>
+                        <div class="progress-track"><div id="bar-ram" class="progress-fill" style="width: 0%" data-init-width="{{ system.ram }}"></div></div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">STORAGE REMAINING</span>
+                        <span id="sys-disk-free" class="metric-value">{{ system.disk_free_gb }} GB</span>
+                        <span class="metric-label" id="sys-disk-percent">Capacity: {{ 100 - system.disk }}% Available</span>
+                        <div class="progress-track"><div id="bar-disk" class="progress-fill" style="width: 0%" data-init-width="{{ system.disk }}"></div></div>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">UPTIME</span>
+                        <span id="sys-uptime" class="metric-value">{{ (system.uptime / 3600)|round(1) }} HR</span>
+                        <span class="metric-label">Steady State Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Operations (Now Processing) -->
+            <div class="card span-8">
+                <div class="card-title">
+                    Active Operations
+                    <span id="op-count-badge" class="badge badge-info">{{ active|length }} Working</span>
+                </div>
+                <div id="active-op-container">
+                    {% if active %}
+                        <div class="data-table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr><th>Target Source</th><th>File Identity</th><th>Format</th><th>Weight</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for a in active %}
+                                    <tr>
+                                        <td><div class="channel-info"><span class="channel-name">{{ a.display_name }}</span></div></td>
+                                        <td><code style="color: var(--accent); font-size: 0.8rem;">{{ a.media_id[:16] }}...</code></td>
+                                        <td><span class="badge" style="background: var(--glass); border: 1px solid var(--glass-border);">{{ a.file_type }}</span></td>
+                                        <td><span class="metric-label">{{ (a.file_size_bytes / 1024 / 1024)|round(1) if a.file_size_bytes else '?' }} MB</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">System idling. No active network requests.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Queue Strategy -->
+            <div class="card span-4">
+                <div class="card-title">Archive Strategy</div>
+                <div id="queue-metrics" style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% set statuses = [('pending', 'Pending'), ('downloading', 'Active'), ('failed', 'Failed'), ('complete', 'Archived')] %}
+                    {% for key, label in statuses %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 1rem;">
+                            <span class="metric-label">{{ label }}</span>
+                            <span id="q-count-{{ key }}" 
+                                  class="queue-count-value"
+                                  data-status="{{ key }}"
+                                  style="font-weight: 700;">
+                                {{ queue[key] or 0 }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <span id="app-mode-badge" class="badge {{ 'badge-paused' if is_paused else 'badge-active' }}">
+                        {{ 'System Paused' if is_paused else 'Engine Running' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Storage Composition -->
+            <div class="card span-full">
+                <div class="card-title">Storage Composition</div>
+                <div id="storage-viz-container">
+                    <div class="storage-distribution" id="storage-dist-bar">
+                        <!-- Segments will be injected/updated via JS -->
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        {% for s in storage %}
+                            <div class="metric-box storage-card" 
+                                 data-type="{{ s.file_type }}"
+                                 style="padding: 1rem; background: var(--glass); border-radius: 1rem; border-left: 4px solid var(--card-border);">
+                                <span class="metric-label">{{ s.file_type|upper }}</span>
+                                <span style="font-weight: 700; font-size: 1.1rem;">{{ s.count }} Items</span>
+                                <span class="metric-label">{{ (s.total_size / 1024 / 1024 / 1024)|round(2) if s.total_size else 0 }} GB Total</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next in Queue & Recent Activity -->
+            <div class="card span-6">
+                <div class="card-title">Next Priority</div>
+                <div id="next-queue-container" style="max-height: 350px; overflow-y: auto;">
+                    {% if pending %}
+                        <table>
+                            <thead><tr><th>Target</th><th>Type</th><th>Rank</th></tr></thead>
+                            <tbody>
+                                {% for p in pending %}
+                                <tr>
+                                    <td><span class="channel-name" style="font-size: 0.9rem;">{{ p.display_name }}</span></td>
+                                    <td><span class="badge" style="background: var(--glass);">{{ p.file_type }}</span></td>
+                                    <td><span class="badge badge-info">P{{ p.priority }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">No pending items.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card span-6">
+                <div class="card-title">Recent Archival</div>
+                <div id="recent-history-container" style="max-height: 350px; overflow-y: auto;">
+                    {% if recent %}
+                        <table>
+                            <thead><tr><th>Origin</th><th>Asset</th><th>Timestamp</th></tr></thead>
+                            <tbody>
+                                {% for r in recent %}
+                                <tr>
+                                    <td><span class="channel-name" style="font-size: 0.9rem;">{{ r.display_name }}</span></td>
+                                    <td><span class="badge badge-active">{{ r.file_type }}</span></td>
+                                    <td><span class="metric-label">{{ r.downloaded_at.split('T')[1][:5] if r.downloaded_at else '-' }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">No archival history recorded.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Monitored Channels -->
+            <div class="card span-full">
+                <div class="card-title">Network Nodes</div>
+                <div class="data-table-wrapper">
+                    <table id="nodes-table">
+                        <thead>
+                            <tr><th>Node Source</th><th>Operational Status</th><th>Frequency</th><th>Last Pulse</th><th>Next Window</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for c in channels %}
+                            <tr>
+                                <td>
+                                    <div class="channel-info">
+                                        <span class="channel-name">{{ c.display_name or 'Node Undefined' }}</span>
+                                        <span class="channel-meta">{{ c.username_or_link }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge {{ 'badge-active' if c.is_active else 'badge-paused' }}">
+                                        {{ 'Online' if c.is_active else 'Suspended' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if c.is_periodic %}
+                                        <span class="badge badge-info">Adaptive Tier {{ c.tier }}</span>
+                                    {% else %}
+                                        <span class="badge" style="background: var(--glass);">One-shot</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="metric-label">{{ c.last_polled_at.split('T')[0] if c.last_polled_at else 'Initial' }}</span></td>
+                                <td><span style="color: var(--accent); font-weight: 600;">{{ c.cooldown_until.split('T')[1][:5] if c.cooldown_until else 'Queued' }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Storage Breakdown</h2>
-            <table>
-                <thead>
-                    <tr><th>Type</th><th>Count</th><th>Size (MB)</th></tr>
-                </thead>
-                {% for row in storage %}
-                <tr>
-                    <td>{{ row['file_type']|capitalize }}s</td>
-                    <td>{{ row['count'] }}</td>
-                    <td>{{ (row['total_size'] / 1024 / 1024)|round(2) if row['total_size'] else 0 }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
+        <footer>
+            <div class="footer-content">
+                <div>DownLine Archival Appliance — Operational Control Unit v0.1.0</div>
+                <div>Telemetry Synced: <span id="sync-timestamp">{{ timestamp }}</span></div>
+            </div>
+        </footer>
     </div>
 
-    <div class="card">
-        <h2>Monitored Channels</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Channel</th>
-                    <th>Status</th>
-                    <th>Tier</th>
-                    <th>Last Poll</th>
-                    <th>Next Poll</th>
-                </tr>
-            </thead>
-            {% for c in channels %}
-            <tr>
-                <td><strong>{{ c['display_name'] }}</strong><br><span class="muted">{{ c['username_or_link'] }}</span></td>
-                <td>
-                    <span class="status-badge {{ 'status-active' if c['is_active'] else 'status-inactive' }}">
-                        {{ 'ACTIVE' if c['is_active'] else 'PAUSED' }}
-                    </span>
-                    <span class="status-badge" style="background: rgba(56, 189, 248, 0.1); color: var(--accent);">
-                        {{ 'PERIODIC' if c['is_periodic'] else 'ONE-TIME' }}
-                    </span>
-                </td>
-                <td>Tier {{ c['tier'] if c['is_periodic'] else '-' }}</td>
-                <td><span class="muted">{{ c['last_polled_at'] or 'Never' }}</span></td>
-                <td>{{ c['cooldown_until'] or 'Pending' }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+    <script>
+        const API_URL = window.location.pathname.endsWith('/') 
+            ? window.location.pathname + 'api/stats'
+            : window.location.pathname + '/api/stats';
 
-    {% if failures %}
-    <div class="card" style="margin-top: 2rem; border-top: 2px solid var(--danger);">
-        <h2>Recent Failures</h2>
-        <table>
-            <thead>
-                <tr><th>Channel</th><th>Error</th><th>Retries</th><th>Last Attempt</th></tr>
-            </thead>
-            {% for f in failures %}
-            <tr>
-                <td>{{ f['display_name'] }}</td>
-                <td style="color: var(--danger); font-size: 0.8rem;">{{ f['last_error'] }}</td>
-                <td>{{ f['retry_count'] }}/3</td>
-                <td class="muted">{{ f['last_attempt_at'] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% endif %}
+        function updateStorageDistribution(storageData) {
+            const container = document.getElementById('storage-dist-bar');
+            if (!container) return;
 
-    <footer style="margin-top: 4rem; text-align: center; border-top: 1px solid #334155; padding-top: 1rem;">
-        <p class="muted">All timestamps are in UTC.</p>
-    </footer>
+            const totalSize = storageData.reduce((acc, s) => acc + (s.total_size || 0), 0);
+            if (totalSize === 0) {
+                container.innerHTML = '<div class="storage-segment seg-other" style="width: 100%"></div>';
+                return;
+            }
+
+            let html = '';
+            storageData.forEach(s => {
+                const percent = ((s.total_size || 0) / totalSize) * 100;
+                if (percent > 0.5) {
+                    const typeClass = `seg-${s.file_type}`;
+                    html += `<div class="storage-segment ${typeClass}" style="width: ${percent}%" title="${s.file_type.toUpperCase()}: ${percent.toFixed(1)}%"></div>`;
+                }
+            });
+            container.innerHTML = html;
+        }
+
+        async function refreshTelemetry() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Telemetry request failed');
+                const data = await response.json();
+
+                // 1. Update Pulse Metrics
+                document.getElementById('sys-cpu').textContent = `${data.system.cpu}%`;
+                document.getElementById('bar-cpu').style.width = `${data.system.cpu}%`;
+                
+                document.getElementById('sys-ram').textContent = `${data.system.ram}%`;
+                document.getElementById('bar-ram').style.width = `${data.system.ram}%`;
+                
+                document.getElementById('sys-disk-free').textContent = `${data.system.disk_free_gb} GB`;
+                document.getElementById('sys-disk-percent').textContent = `Capacity: ${100 - data.system.disk}% Available`;
+                document.getElementById('bar-disk').style.width = `${data.system.disk}%`;
+                
+                document.getElementById('sys-uptime').textContent = `${(data.system.uptime / 3600).toFixed(1)} HR`;
+
+                // 2. Update Status Indicators
+                const modeBadge = document.getElementById('app-mode-badge');
+                modeBadge.textContent = data.is_paused ? 'System Paused' : 'Engine Running';
+                modeBadge.className = `badge ${data.is_paused ? 'badge-paused' : 'badge-active'}`;
+
+                document.getElementById('op-count-badge').textContent = `${data.active.length} Working`;
+
+                // 3. Update Counts
+                const statuses = ['pending', 'downloading', 'failed', 'complete'];
+                statuses.forEach(s => {
+                    const el = document.getElementById(`q-count-${s}`);
+                    if (el) el.textContent = data.queue[s] || 0;
+                });
+
+                // 4. Update Tables (Simplified replacement for performance)
+                if (data.active.length > 0) {
+                    let activeHtml = '<table><thead><tr><th>Target Source</th><th>File Identity</th><th>Format</th><th>Weight</th></tr></thead><tbody>';
+                    data.active.forEach(a => {
+                        activeHtml += `<tr><td><div class="channel-info"><span class="channel-name">${a.display_name}</span></div></td><td><code style="color: var(--accent); font-size: 0.8rem;">${a.media_id.substring(0, 16)}...</code></td><td><span class="badge" style="background: var(--glass); border: 1px solid var(--glass-border);">${a.file_type}</span></td><td><span class="metric-label">${(a.file_size_bytes / 1024 / 1024).toFixed(1)} MB</span></td></tr>`;
+                    });
+                    activeHtml += '</tbody></table>';
+                    document.getElementById('active-op-container').innerHTML = activeHtml;
+                } else {
+                    document.getElementById('active-op-container').innerHTML = '<div class="empty-state">System idling. No active network requests.</div>';
+                }
+
+                // Update Storage Viz
+                updateStorageDistribution(data.storage);
+
+                // Meta
+                document.getElementById('sync-timestamp').textContent = new Date().toISOString().replace('T', ' ').split('.')[0];
+                document.getElementById('status-text').textContent = 'Operational';
+                document.querySelector('.pulse-dot').style.backgroundColor = 'var(--success)';
+
+            } catch (err) {
+                console.error('Telemetry Sync Error:', err);
+                document.getElementById('status-text').textContent = 'Telemetry Lost';
+                document.querySelector('.pulse-dot').style.backgroundColor = 'var(--danger)';
+            }
+        }
+
+        // Initialize progress bars from data-attributes
+        document.querySelectorAll('[data-init-width]').forEach(el => {
+            setTimeout(() => {
+                el.style.width = el.getAttribute('data-init-width') + '%';
+            }, 100);
+        });
+
+        // Start Telemetry Cycle
+        setInterval(refreshTelemetry, 5000);
+        
+        // Initial storage distribution render
+        const initialStorage = JSON.parse(document.getElementById('initial-storage-data').textContent);
+        updateStorageDistribution(initialStorage);
+    </script>
+    <script id="initial-storage-data" type="application/json">{{ storage|tojson }}</script>
 </body>
 </html>
