@@ -101,9 +101,11 @@ The appliance is managed via a secure Telegram Bot. All commands from unauthoriz
 ---
 
 ## 📊 Dashboard Visibility
-The appliance includes a read-only dashboard for high-level observability.
-- **URL**: `http://localhost:8000` (by default)
-- **Features**: Real-time queue summary, storage breakdown, and channel health tracking.
+The appliance includes a premium, read-only dashboard designed for high-level observability and real-time visualization.
+- **URL**: `http://localhost:8000/downline/dashboard` (Default)
+- **Aesthetics**: Premium dark theme with real-time "System Pulse" monitoring.
+- **Live Updates**: Real-time queue status, active downloads, and system resource tracking (CPU/RAM/Disk) without page refreshes.
+- **Read-Only**: Designed purely for observability to ensure operational integrity.
 
 ---
 
